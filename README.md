@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # infinite_scroll_plus
 
 A Flutter package that provides infinite scroll functionality for ListViews and GridViews.
@@ -24,3 +25,7 @@ InfiniteScrollList(
     // load more data
   },
 );
+=======
+# infinite_scroll
+infinite_scroll is flutter package project. which can help developers.
+>>>>>>> 5cc431caa5bd8fecf99d463b5f1d62549841e2d6
