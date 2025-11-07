@@ -1,0 +1,15 @@
+name: infinite_scroll_plus_example
+description: Example app for the infinite_scroll_plus package
+publish_to: 'none' # don't publish the example to pub.dev
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  infinite_scroll_plus:
+    path: ../
+
+flutter:
+  uses-material-design: true
