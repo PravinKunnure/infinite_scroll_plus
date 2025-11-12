@@ -10,27 +10,42 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: DemoPage(),
+      home: MyPage(),
     );
   }
 }
 
-class DemoPage extends StatelessWidget {
-  const DemoPage({super.key});
+class MyPage extends StatefulWidget {
+  const MyPage({super.key});
 
-  Future<List<int>> _fetchData(int pageKey) async {
+  @override
+  State<MyPage> createState() => _MyPageState();
+}
+
+class _MyPageState extends State<MyPage> {
+  final List<String> _items = List.generate(20, (i) => 'Item $i');
+  bool _hasMore = true;
+
+  Future<void> _loadMore() async {
     await Future.delayed(const Duration(seconds: 2));
-    if (pageKey > 5) return []; // simulate end of list
-    return List.generate(10, (i) => i + pageKey * 10);
+    if (_items.length >= 100) {
+      setState(() => _hasMore = false);
+      return;
+    }
+    setState(() {
+      _items.addAll(List.generate(10, (i) => 'Item ${_items.length + i}'));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Infinite Scroll Plus Example')),
-      body: InfiniteScrollList<int>(
-        fetchPage: _fetchData,
-        itemBuilder: (context, item, index) => ListTile(title: Text('Item $item')),
+      appBar: AppBar(title: const Text('My Infinite Scroll')),
+      body: InfiniteScrollList(
+        itemCount: _items.length,
+        itemBuilder: (context, index) => ListTile(title: Text(_items[index])),
+        onLoadMore: _loadMore,
+        hasMore: _hasMore,
       ),
     );
   }

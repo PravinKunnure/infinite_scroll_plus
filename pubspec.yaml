@@ -1,6 +1,6 @@
 name: infinite_scroll_plus
 description: "A package to help developer to do add lazy loading or infinite scroll to the listview or use a infinite scrollable listview"
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/PravinKunnure/infinite_scroll
 
 environment:
