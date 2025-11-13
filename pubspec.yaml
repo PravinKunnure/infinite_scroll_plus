@@ -1,6 +1,6 @@
 name: infinite_scroll_plus
-description: "A lightweight Flutter package to make lazy loading and infinite scrolling effortless. Developers can easily add infinite scroll functionality to ListView or GridView without writing complex scroll logic."
-version: 0.0.5
+description: "A lightweight Flutter package to make lazy loading and infinite scrolling effortless."
+version: 0.0.6
 homepage: https://github.com/PravinKunnure/infinite_scroll
 
 environment:

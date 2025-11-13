@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_plus/infinite_scroll_plus.dart';
 
-///0.0.5 nw
+///0.0.6
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {

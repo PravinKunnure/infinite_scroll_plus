@@ -18,3 +18,18 @@
 - Added InfiniteScrollGrid
 - Improved loading indicator customization
 - Fixed minor bugs
+
+
+## [0.0.6] - 2025-11-13
+### Added
+- Proper library-level documentation and version comment.
+- Inline comments explaining key parts of `InfiniteScrollList` and `InfiniteScrollGrid`.
+- Type definition for `ItemWidgetBuilder` clarified.
+
+### Fixed
+- Dangling library doc comment warning in `infinite_scroll_plus.dart`.
+- Dart formatter issues; file now fully formatted.
+
+### Improved
+- Readability and maintainability of infinite scroll logic.
+- Consistent use of `_scrollController` and proper disposal handling.
