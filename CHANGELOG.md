@@ -13,3 +13,8 @@
 * Working for all platforms,
 * Provides infinite scrolling for Flutter ListViews and GridViews.
 * Supports lazy loading and customizable loading indicators.
+
+## 0.0.5
+- Added InfiniteScrollGrid
+- Improved loading indicator customization
+- Fixed minor bugs
