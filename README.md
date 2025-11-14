@@ -16,6 +16,13 @@ Easily add lazy loading, automatic pagination, and customizable loading indicato
 
 ---
 
+---
+## 🎬 Demo
+
+![InfiniteScrollPlus Demo](https://github.com/PravinKunnure/infinite_scroll_plus/tree/main/example/lib/assets/demo.gif)
+
+---
+
 ## 🚀 Installation
 
 Add the dependency in your **`pubspec.yaml`** file:

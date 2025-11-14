@@ -48,3 +48,28 @@
 
 ### Fixed
 - Documentation coverage issue for public API (now above 20%) to pass `public_member_api_docs` lint check.
+
+
+
+## [0.0.8] - 2025-11-14
+### Added
+- Fully documented public API with DartDoc comments for `InfiniteScrollList` and `InfiniteScrollGrid`.
+- Added descriptions for constructors, properties, and methods to improve readability and pub.dev documentation.
+- Optional `loadingWidget` support in both `InfiniteScrollList` and `InfiniteScrollGrid`.
+- `ItemWidgetBuilder` typedef introduced for consistent item builder signatures.
+
+### Changed
+- Removed unnecessary `library infinite_scroll_plus;` declaration to comply with Dart lints.
+- Improved scroll detection logic documentation.
+- Minor refactoring for clarity in `_onScroll` and `_loadMore` methods.
+
+### Fixed
+- Documentation coverage issue for public API (now above 20%) to pass `public_member_api_docs` lint check.
+- Added demo.gif for more information
+
+## [0.0.9] - 2025-11-14
+### Added
+- Added the ability to **toggle between ListView and GridView dynamically**.
+- Support for **customizable loading indicators** for both list and grid views.
+- Updated example app to demonstrate the new toggle feature.
+- Minor performance improvements for infinite scrolling and lazy loading.
