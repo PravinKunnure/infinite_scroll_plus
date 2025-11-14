@@ -33,3 +33,18 @@
 ### Improved
 - Readability and maintainability of infinite scroll logic.
 - Consistent use of `_scrollController` and proper disposal handling.
+
+## [0.0.6] - 2025-11-14
+### Added
+- Fully documented public API with DartDoc comments for `InfiniteScrollList` and `InfiniteScrollGrid`.
+- Added descriptions for constructors, properties, and methods to improve readability and pub.dev documentation.
+- Optional `loadingWidget` support in both `InfiniteScrollList` and `InfiniteScrollGrid`.
+- `ItemWidgetBuilder` typedef introduced for consistent item builder signatures.
+
+### Changed
+- Removed unnecessary `library infinite_scroll_plus;` declaration to comply with Dart lints.
+- Improved scroll detection logic documentation.
+- Minor refactoring for clarity in `_onScroll` and `_loadMore` methods.
+
+### Fixed
+- Documentation coverage issue for public API (now above 20%) to pass `public_member_api_docs` lint check.

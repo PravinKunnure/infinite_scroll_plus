@@ -34,7 +34,7 @@ Copy code
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_plus/infinite_scroll_plus.dart';
 
-/// 0.0.6
+/// 0.0.7
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -132,22 +132,3 @@ class _MyPageState extends State<MyPage> {
     );
   }
 }
-📝 Changelog
-[0.0.6] - 2025-11-13
-Added
-
-Toggle between ListView and GridView in the example
-
-Inline comments for clarity and maintainability
-
-Fixed
-
-Dangling library doc comment warning
-
-Dart formatting issues
-
-Improved
-
-Example now supports dynamic switching of layouts
-
-Updated README and usage instructions
