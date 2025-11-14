@@ -34,7 +34,7 @@
 - Readability and maintainability of infinite scroll logic.
 - Consistent use of `_scrollController` and proper disposal handling.
 
-## [0.0.6] - 2025-11-14
+## [0.0.7] - 2025-11-14
 ### Added
 - Fully documented public API with DartDoc comments for `InfiniteScrollList` and `InfiniteScrollGrid`.
 - Added descriptions for constructors, properties, and methods to improve readability and pub.dev documentation.
