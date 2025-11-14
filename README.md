@@ -19,7 +19,7 @@ Easily add lazy loading, automatic pagination, and customizable loading indicato
 ---
 ## 🎬 Demo
 
-![InfiniteScrollPlus Demo](https://github.com/PravinKunnure/infinite_scroll_plus/tree/main/example/lib/assets/demo.gif)
+![InfiniteScrollPlus Demo](https://github.com/PravinKunnure/infinite_scroll_plus/blob/main/example/assets/demo.gif)
 
 ---
 

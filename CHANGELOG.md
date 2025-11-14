@@ -73,3 +73,11 @@
 - Support for **customizable loading indicators** for both list and grid views.
 - Updated example app to demonstrate the new toggle feature.
 - Minor performance improvements for infinite scrolling and lazy loading.
+
+## [0.0.10] - 2025-11-14
+### Added
+- Added the ability to **toggle between ListView and GridView dynamically**.
+- Support for **customizable loading indicators** for both list and grid views.
+- Updated example app to demonstrate the new toggle feature.
+- Minor performance improvements for infinite scrolling and lazy loading.
+- Demo not loading issue.
