@@ -81,3 +81,9 @@
 - Updated example app to demonstrate the new toggle feature.
 - Minor performance improvements for infinite scrolling and lazy loading.
 - Demo not loading issue.
+
+
+## [0.0.11] - 2025-11-14
+### Added
+- Minor performance improvements for infinite scrolling and lazy loading.
+- Demo not loading issue.

@@ -16,10 +16,9 @@ Easily add lazy loading, automatic pagination, and customizable loading indicato
 
 ---
 
----
 ## 🎬 Demo
 
-![InfiniteScrollPlus Demo](https://github.com/PravinKunnure/infinite_scroll_plus/blob/main/example/assets/demo.gif)
+![InfiniteScrollPlus Demo](https://raw.githubusercontent.com/PravinKunnure/infinite_scroll_plus/main/example/assets/demo.gif)
 
 ---
 
@@ -29,19 +28,14 @@ Add the dependency in your **`pubspec.yaml`** file:
 
 ```yaml
 dependencies:
-  infinite_scroll_plus: ^0.0.6
-Then run:
+  infinite_scroll_plus: ^0.0.7
 
-bash
-Copy code
-flutter pub get
-🧠 Usage
-dart
-Copy code
+
+//Usage
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_plus/infinite_scroll_plus.dart';
 
-/// 0.0.7
+/// Example usage for infinite_scroll_plus 0.0.7
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
