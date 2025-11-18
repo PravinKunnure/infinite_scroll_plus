@@ -199,4 +199,3 @@ class _InfiniteScrollGridState extends State<InfiniteScrollGrid> {
     );
   }
 }
-

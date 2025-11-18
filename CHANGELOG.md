@@ -87,3 +87,12 @@
 ### Added
 - Minor performance improvements for infinite scrolling and lazy loading.
 - Demo not loading issue.
+
+
+## [0.0.12] - 2025-11-18
+### Added
+- Minor performance improvements for infinite scrolling and lazy loading.
+- Demo not loading issue.
+
+
+

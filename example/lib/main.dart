@@ -64,36 +64,36 @@ class _MyPageState extends State<MyPage> {
         padding: const EdgeInsets.all(8.0),
         child: _isGridView
             ? InfiniteScrollGrid(
-          itemCount: _items.length,
-          itemBuilder: (context, index) => Card(
-            color: Colors.blue.shade100,
-            child: Center(
-              child: Text(
-                _items[index],
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-            ),
-          ),
-          onLoadMore: _loadMore,
-          hasMore: _hasMore,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 1,
-          ),
-        )
+                itemCount: _items.length,
+                itemBuilder: (context, index) => Card(
+                  color: Colors.blue.shade100,
+                  child: Center(
+                    child: Text(
+                      _items[index],
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ),
+                onLoadMore: _loadMore,
+                hasMore: _hasMore,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 1,
+                ),
+              )
             : InfiniteScrollList(
-          itemCount: _items.length,
-          itemBuilder: (context, index) => ListTile(
-            leading: CircleAvatar(child: Text('${index + 1}')),
-            title: Text(_items[index]),
-          ),
-          onLoadMore: _loadMore,
-          hasMore: _hasMore,
-        ),
+                itemCount: _items.length,
+                itemBuilder: (context, index) => ListTile(
+                  leading: CircleAvatar(child: Text('${index + 1}')),
+                  title: Text(_items[index]),
+                ),
+                onLoadMore: _loadMore,
+                hasMore: _hasMore,
+              ),
       ),
     );
   }
 }
-
