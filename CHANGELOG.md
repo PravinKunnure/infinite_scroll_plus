@@ -95,4 +95,8 @@
 - Demo not loading issue.
 
 
+## [0.0.13] - 2025-11-26
+### Added
+- Minor performance improvements for infinite scrolling and lazy loading.
+- Demo not loading issue.
 
