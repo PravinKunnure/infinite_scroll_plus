@@ -20,7 +20,7 @@
 - Fixed minor bugs
 
 
-## [0.0.6] - 2025-11-13
+## [0.0.6]
 ### Added
 - Proper library-level documentation and version comment.
 - Inline comments explaining key parts of `InfiniteScrollList` and `InfiniteScrollGrid`.
@@ -34,7 +34,7 @@
 - Readability and maintainability of infinite scroll logic.
 - Consistent use of `_scrollController` and proper disposal handling.
 
-## [0.0.7] - 2025-11-14
+## [0.0.7]
 ### Added
 - Fully documented public API with DartDoc comments for `InfiniteScrollList` and `InfiniteScrollGrid`.
 - Added descriptions for constructors, properties, and methods to improve readability and pub.dev documentation.
@@ -51,7 +51,7 @@
 
 
 
-## [0.0.8] - 2025-11-14
+## [0.0.8]
 ### Added
 - Fully documented public API with DartDoc comments for `InfiniteScrollList` and `InfiniteScrollGrid`.
 - Added descriptions for constructors, properties, and methods to improve readability and pub.dev documentation.
@@ -67,14 +67,14 @@
 - Documentation coverage issue for public API (now above 20%) to pass `public_member_api_docs` lint check.
 - Added demo.gif for more information
 
-## [0.0.9] - 2025-11-14
+## [0.0.9]
 ### Added
 - Added the ability to **toggle between ListView and GridView dynamically**.
 - Support for **customizable loading indicators** for both list and grid views.
 - Updated example app to demonstrate the new toggle feature.
 - Minor performance improvements for infinite scrolling and lazy loading.
 
-## [0.0.10] - 2025-11-14
+## [0.0.10]
 ### Added
 - Added the ability to **toggle between ListView and GridView dynamically**.
 - Support for **customizable loading indicators** for both list and grid views.
@@ -83,19 +83,25 @@
 - Demo not loading issue.
 
 
-## [0.0.11] - 2025-11-14
+## [0.0.11]
 ### Added
 - Minor performance improvements for infinite scrolling and lazy loading.
 - Demo not loading issue.
 
 
-## [0.0.12] - 2025-11-18
+## [0.0.12]
 ### Added
 - Minor performance improvements for infinite scrolling and lazy loading.
 - Demo not loading issue.
 
 
-## [0.0.13] - 2025-11-26
+## [0.0.13]
+### Added
+- Minor performance improvements for infinite scrolling and lazy loading.
+- Demo not loading issue.
+
+
+## [0.0.14]
 ### Added
 - Minor performance improvements for infinite scrolling and lazy loading.
 - Demo not loading issue.
