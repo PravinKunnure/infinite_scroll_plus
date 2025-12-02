@@ -1,200 +1,293 @@
+// ================================================================
 // Infinite Scroll Plus
-// Flutter package providing lazy loading and infinite scroll
-// functionality for ListView and GridView.
-//
-// Version: 0.0.7
+// Flutter package: Lazy loading + Infinite scroll for List & Grid
+// Version: 0.1.0 (Improved with Local Search + Sort)
+// ================================================================
 
 import 'package:flutter/material.dart';
 
-/// Type definition for the item builder function.
-typedef ItemWidgetBuilder = Widget Function(BuildContext context, int index);
+/// Function signature for building widgets using a model item.
+typedef ItemWidgetBuilder<T> = Widget Function(
+    BuildContext context,
+    T item,
+    int index,
+    );
 
-/// --------------------
-/// InfiniteScrollList
-/// --------------------
-/// A ListView that supports infinite scrolling and lazy loading.
-class InfiniteScrollList extends StatefulWidget {
-  /// Number of items currently loaded in the list.
-  final int itemCount;
+/// ===========================================================================
+/// InfiniteScrollList<T>
+/// A paginated ListView with optional local sorting and searching.
+/// ===========================================================================
+class InfiniteScrollList<T> extends StatefulWidget {
+  /// The list of all items currently loaded (provided by the user).
+  ///
+  /// 🔥 IMPORTANT:
+  /// Pagination loads new items → you append them to this list → pass it back.
+  final List<T> items;
 
-  /// Builds the widget for each item.
-  final ItemWidgetBuilder itemBuilder;
+  /// Builds each list tile widget.
+  final ItemWidgetBuilder<T> itemBuilder;
 
-  /// Callback triggered when more items need to be loaded.
+  /// Triggered when the user scrolls near the bottom.
   final Future<void> Function() onLoadMore;
 
-  /// Whether there are more items to load.
+  /// Whether there are more items available from the API.
   final bool hasMore;
 
-  /// Widget to display at the bottom while loading.
+  /// Optional loader widget.
   final Widget? loadingWidget;
 
-  /// Optional scroll controller. If null, a controller is created internally.
+  /// Optional scroll controller.
   final ScrollController? controller;
 
-  /// Creates an [InfiniteScrollList].
+  // ------------------------ SEARCH OPTIONS ------------------------
+
+  /// Optional search query. If null or empty → search disabled.
+  final String? searchQuery;
+
+  /// Function applied to filter the existing items.
+  /// Example: (items, q) => items.where((e) => e.name.contains(q)).toList()
+  final List<T> Function(List<T> items, String query)? onSearch;
+
+  // ------------------------ SORT OPTIONS --------------------------
+
+  /// Whether sorting is enabled.
+  final bool applySort;
+
+  /// Sort function applied locally (on existing items).
+  final List<T> Function(List<T> items)? onSort;
+
   const InfiniteScrollList({
     super.key,
-    required this.itemCount,
+    required this.items,
     required this.itemBuilder,
     required this.onLoadMore,
     this.hasMore = true,
     this.loadingWidget,
     this.controller,
+    this.searchQuery,
+    this.onSearch,
+    this.applySort = false,
+    this.onSort,
   });
 
   @override
-  State<InfiniteScrollList> createState() => _InfiniteScrollListState();
+  State<InfiniteScrollList<T>> createState() => _InfiniteScrollListState<T>();
 }
 
-class _InfiniteScrollListState extends State<InfiniteScrollList> {
-  late final ScrollController _scrollController;
+class _InfiniteScrollListState<T> extends State<InfiniteScrollList<T>> {
+  late final ScrollController _controller;
   bool _isLoading = false;
+
+  /// Applies search and sorting to the items.
+  List<T> get _processedItems {
+    List<T> list = List.from(widget.items);
+
+    // ---------- Apply Search ----------
+    if (widget.searchQuery != null &&
+        widget.searchQuery!.isNotEmpty &&
+        widget.onSearch != null) {
+      list = widget.onSearch!(list, widget.searchQuery!);
+    }
+
+    // ---------- Apply Sort ----------
+    if (widget.applySort && widget.onSort != null) {
+      list = widget.onSort!(list);
+    }
+
+    return list;
+  }
 
   @override
   void initState() {
     super.initState();
-    _scrollController = widget.controller ?? ScrollController();
-    _scrollController.addListener(_onScroll);
+
+    // Create our own controller only if the user didn't provide one
+    _controller = widget.controller ?? ScrollController();
+    _controller.addListener(_onScroll);
   }
 
-  /// Detects when the user scrolls near the bottom and triggers loading more items.
+  /// Detects if the user has scrolled close to the end.
+  bool get _nearBottom {
+    final pos = _controller.position;
+    return pos.pixels >= pos.maxScrollExtent - 200;
+  }
+
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      _loadMore();
-    }
+    if (_nearBottom) _loadMore();
   }
 
-  /// Handles the load more logic and prevents duplicate calls.
+  /// Loads more data (only if not already loading).
   Future<void> _loadMore() async {
     if (_isLoading || !widget.hasMore) return;
+
     setState(() => _isLoading = true);
+
     await widget.onLoadMore();
-    if (mounted) setState(() => _isLoading = false);
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
   }
 
   @override
   void dispose() {
     if (widget.controller == null) {
-      _scrollController.dispose();
+      _controller.dispose();
     }
     super.dispose();
   }
 
+  /// Builds the ListView with loader footer.
   @override
   Widget build(BuildContext context) {
+    final items = _processedItems;
+    final showLoader = widget.hasMore;
+
     return ListView.builder(
-      controller: _scrollController,
-      itemCount: widget.itemCount + (widget.hasMore ? 1 : 0),
+      controller: _controller,
+      itemCount: items.length + (showLoader ? 1 : 0),
       itemBuilder: (context, index) {
-        if (index < widget.itemCount) {
-          return widget.itemBuilder(context, index);
-        } else {
-          return widget.loadingWidget ??
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Center(child: CircularProgressIndicator()),
-              );
+        if (index < items.length) {
+          return widget.itemBuilder(context, items[index], index);
         }
+
+        // Loading Footer
+        return widget.loadingWidget ??
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
+            );
       },
     );
   }
 }
 
-/// --------------------
-/// InfiniteScrollGrid
-/// --------------------
-/// A GridView that supports infinite scrolling and lazy loading.
-class InfiniteScrollGrid extends StatefulWidget {
-  /// Number of items currently loaded in the grid.
-  final int itemCount;
+/// ===========================================================================
+/// InfiniteScrollGrid<T>
+/// A paginated GridView with optional local sorting and searching.
+/// ===========================================================================
+class InfiniteScrollGrid<T> extends StatefulWidget {
+  /// All loaded items.
+  final List<T> items;
 
-  /// Builds the widget for each grid item.
-  final ItemWidgetBuilder itemBuilder;
+  /// Builds each grid tile.
+  final ItemWidgetBuilder<T> itemBuilder;
 
-  /// Callback triggered when more items need to be loaded.
-  final Future<void> Function() onLoadMore;
-
-  /// Layout configuration for the grid.
+  /// Grid layout (required).
   final SliverGridDelegate gridDelegate;
 
-  /// Whether there are more items to load.
+  /// Called when more items must be fetched.
+  final Future<void> Function() onLoadMore;
+
+  /// Whether more items exist on the server.
   final bool hasMore;
 
-  /// Widget to display at the end while loading.
+  /// Loader widget at the end.
   final Widget? loadingWidget;
 
-  /// Optional scroll controller. If null, a controller is created internally.
+  /// Optional scroll controller.
   final ScrollController? controller;
 
-  /// Creates an [InfiniteScrollGrid].
+  // ---------------- Search Options ----------------
+
+  final String? searchQuery;
+  final List<T> Function(List<T> items, String query)? onSearch;
+
+  // ---------------- Sort Options ------------------
+
+  final bool applySort;
+  final List<T> Function(List<T> items)? onSort;
+
   const InfiniteScrollGrid({
     super.key,
-    required this.itemCount,
+    required this.items,
     required this.itemBuilder,
-    required this.onLoadMore,
     required this.gridDelegate,
+    required this.onLoadMore,
     this.hasMore = true,
     this.loadingWidget,
     this.controller,
+    this.searchQuery,
+    this.onSearch,
+    this.applySort = false,
+    this.onSort,
   });
 
   @override
-  State<InfiniteScrollGrid> createState() => _InfiniteScrollGridState();
+  State<InfiniteScrollGrid<T>> createState() => _InfiniteScrollGridState<T>();
 }
 
-class _InfiniteScrollGridState extends State<InfiniteScrollGrid> {
-  late final ScrollController _scrollController;
+class _InfiniteScrollGridState<T> extends State<InfiniteScrollGrid<T>> {
+  late final ScrollController _controller;
   bool _isLoading = false;
+
+  /// List after search and sort.
+  List<T> get _processedItems {
+    List<T> list = List.from(widget.items);
+
+    if (widget.searchQuery != null &&
+        widget.searchQuery!.isNotEmpty &&
+        widget.onSearch != null) {
+      list = widget.onSearch!(list, widget.searchQuery!);
+    }
+
+    if (widget.applySort && widget.onSort != null) {
+      list = widget.onSort!(list);
+    }
+
+    return list;
+  }
 
   @override
   void initState() {
     super.initState();
-    _scrollController = widget.controller ?? ScrollController();
-    _scrollController.addListener(_onScroll);
+    _controller = widget.controller ?? ScrollController();
+    _controller.addListener(_onScroll);
   }
 
-  /// Detects when the user scrolls near the end and triggers loading more items.
+  bool get _nearBottom {
+    final pos = _controller.position;
+    return pos.pixels >= pos.maxScrollExtent - 200;
+  }
+
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      _loadMore();
-    }
+    if (_nearBottom) _loadMore();
   }
 
-  /// Handles the load more logic and prevents duplicate calls.
   Future<void> _loadMore() async {
     if (_isLoading || !widget.hasMore) return;
+
     setState(() => _isLoading = true);
     await widget.onLoadMore();
-    if (mounted) setState(() => _isLoading = false);
+    if (!mounted) return;
+    setState(() => _isLoading = false);
   }
 
   @override
   void dispose() {
-    if (widget.controller == null) {
-      _scrollController.dispose();
-    }
+    if (widget.controller == null) _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final items = _processedItems;
+    final includeLoader = widget.hasMore;
+
     return GridView.builder(
-      controller: _scrollController,
+      controller: _controller,
       gridDelegate: widget.gridDelegate,
-      itemCount: widget.itemCount + (widget.hasMore ? 1 : 0),
+      itemCount: items.length + (includeLoader ? 1 : 0),
       itemBuilder: (context, index) {
-        if (index < widget.itemCount) {
-          return widget.itemBuilder(context, index);
-        } else {
-          return widget.loadingWidget ??
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Center(child: CircularProgressIndicator()),
-              );
+        if (index < items.length) {
+          return widget.itemBuilder(context, items[index], index);
         }
+
+        // Loader tile (still inside the grid)
+        return widget.loadingWidget ??
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
+            );
       },
     );
   }

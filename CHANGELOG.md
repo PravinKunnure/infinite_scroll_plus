@@ -1,108 +1,108 @@
 ## 0.0.1
-
-* Have initial phase not working for all platforms
-
+### Added
+- Initial release (not working across all platforms).
 
 ## 0.0.2
-
-* Not working for web
-
+### Fixed
+- Resolved multi-platform issues but still not working for web.
 
 ## 0.0.3
-
-* Working for all platforms,
-* Provides infinite scrolling for Flutter ListViews and GridViews.
-* Supports lazy loading and customizable loading indicators.
+### Added
+- Full support for all platforms.
+- Infinite scrolling for Flutter ListViews and GridViews.
+- Lazy loading support with customizable loading indicators.
 
 ## 0.0.5
-- Added InfiniteScrollGrid
-- Improved loading indicator customization
-- Fixed minor bugs
-
-
-## [0.0.6]
 ### Added
-- Proper library-level documentation and version comment.
-- Inline comments explaining key parts of `InfiniteScrollList` and `InfiniteScrollGrid`.
-- Type definition for `ItemWidgetBuilder` clarified.
+- `InfiniteScrollGrid` widget.
+- Improved loading indicator customization.
 
 ### Fixed
-- Dangling library doc comment warning in `infinite_scroll_plus.dart`.
-- Dart formatter issues; file now fully formatted.
+- Minor bugs and stability issues.
+
+## 0.0.6
+### Added
+- Complete library-level documentation.
+- Inline comments for `InfiniteScrollList` and `InfiniteScrollGrid`.
+- Clarified `ItemWidgetBuilder` typedef.
+
+### Fixed
+- Dangling doc comment warning.
+- Formatting issues with Dart formatter.
 
 ### Improved
-- Readability and maintainability of infinite scroll logic.
-- Consistent use of `_scrollController` and proper disposal handling.
+- Scroll controller lifecycle handling.
+- Readability and maintainability of scroll logic.
 
-## [0.0.7]
+## 0.0.7
 ### Added
-- Fully documented public API with DartDoc comments for `InfiniteScrollList` and `InfiniteScrollGrid`.
-- Added descriptions for constructors, properties, and methods to improve readability and pub.dev documentation.
-- Optional `loadingWidget` support in both `InfiniteScrollList` and `InfiniteScrollGrid`.
-- `ItemWidgetBuilder` typedef introduced for consistent item builder signatures.
+- Full DartDoc coverage for all public API elements.
+- Optional `loadingWidget` parameter.
+- More detailed documentation for constructors, properties, and methods.
 
 ### Changed
-- Removed unnecessary `library infinite_scroll_plus;` declaration to comply with Dart lints.
-- Improved scroll detection logic documentation.
-- Minor refactoring for clarity in `_onScroll` and `_loadMore` methods.
+- Removed unnecessary `library infinite_scroll_plus;` declaration.
+- Improved documentation around scroll detection.
 
 ### Fixed
-- Documentation coverage issue for public API (now above 20%) to pass `public_member_api_docs` lint check.
+- Public API documentation coverage to meet `public_member_api_docs` lint requirement.
 
-
-
-## [0.0.8]
+## 0.0.8
 ### Added
-- Fully documented public API with DartDoc comments for `InfiniteScrollList` and `InfiniteScrollGrid`.
-- Added descriptions for constructors, properties, and methods to improve readability and pub.dev documentation.
-- Optional `loadingWidget` support in both `InfiniteScrollList` and `InfiniteScrollGrid`.
-- `ItemWidgetBuilder` typedef introduced for consistent item builder signatures.
+- Demo GIF added for pub.dev.
+- Continued documentation improvements.
 
 ### Changed
-- Removed unnecessary `library infinite_scroll_plus;` declaration to comply with Dart lints.
-- Improved scroll detection logic documentation.
-- Minor refactoring for clarity in `_onScroll` and `_loadMore` methods.
+- Improved `_onScroll` and `_loadMore` clarity.
 
 ### Fixed
-- Documentation coverage issue for public API (now above 20%) to pass `public_member_api_docs` lint check.
-- Added demo.gif for more information
+- More documentation coverage issues.
 
-## [0.0.9]
+## 0.0.9
 ### Added
-- Added the ability to **toggle between ListView and GridView dynamically**.
-- Support for **customizable loading indicators** for both list and grid views.
-- Updated example app to demonstrate the new toggle feature.
-- Minor performance improvements for infinite scrolling and lazy loading.
+- Ability to toggle between ListView and GridView in the example.
+- Custom loading indicator examples.
 
-## [0.0.10]
+### Improved
+- Lazy loading performance.
+
+## 0.0.10
 ### Added
-- Added the ability to **toggle between ListView and GridView dynamically**.
-- Support for **customizable loading indicators** for both list and grid views.
-- Updated example app to demonstrate the new toggle feature.
-- Minor performance improvements for infinite scrolling and lazy loading.
+- More advanced example app details.
+
+### Fixed
 - Demo not loading issue.
 
+## 0.0.11
+### Improved
+- Lazy loading stability and performance.
 
-## [0.0.11]
+### Fixed
+- Additional demo loading issues.
+
+## 0.0.12 — 0.0.14
+### Improved
+- Minor incremental improvements to lazy loading performance.
+
+### Fixed
+- Demo related issues.
+
+---
+
+## **0.1.0 — Major Upgrade 🎉**
 ### Added
-- Minor performance improvements for infinite scrolling and lazy loading.
-- Demo not loading issue.
+- **Search support**:  
+  Allows filtering of already loaded data using `searchQuery` and `onSearch` callbacks.
+- **Sort support**:  
+  Local list/grid sorting through `applySort` and `onSort` callbacks.
+- **Generic item system (`InfiniteScrollList<T>` & `InfiniteScrollGrid<T>`)**:
+  Ensures type safety and flexibility.
+- **New improved example app**:
+  Includes search bar, sort button, and list/grid toggle.
+- **Cleaner API**:  
+  Replaced `itemCount` with `items` to enable local search & sort processing.
 
-
-## [0.0.12]
-### Added
-- Minor performance improvements for infinite scrolling and lazy loading.
-- Demo not loading issue.
-
-
-## [0.0.13]
-### Added
-- Minor performance improvements for infinite scrolling and lazy loading.
-- Demo not loading issue.
-
-
-## [0.0.14]
-### Added
-- Minor performance improvements for infinite scrolling and lazy loading.
-- Demo not loading issue.
-
+### Changed
+- Refactored `itemBuilder` to use:
+  ```dart
+  (BuildContext context, T item, int index)

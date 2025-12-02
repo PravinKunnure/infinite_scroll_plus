@@ -1,6 +1,8 @@
 # infinite_scroll_plus
 A lightweight Flutter package that provides **infinite scroll functionality** for `ListView` and `GridView` widgets.  
-Easily add lazy loading, automatic pagination, and customizable loading indicators to your Flutter apps.
+Now includes **built-in search and sort support** for filtering and ordering existing data effortlessly.
+
+Easily add lazy loading, automatic pagination, search, sort, and customizable loading indicators to your Flutter apps.
 
 ---
 
@@ -8,9 +10,11 @@ Easily add lazy loading, automatic pagination, and customizable loading indicato
 - 🔁 Infinite scrolling for lists and grids
 - ⚡ Lazy loading with async `onLoadMore` callback
 - 🧩 Customizable loading indicators
-- 🪶 Lightweight and easy to integrate
-- 📱 Supports both ListView and GridView
+- 🔍 Local search on already-loaded data
+- ↕️ Local sorting support
 - 🔄 Toggle between ListView and GridView dynamically
+- 🪶 Lightweight and easy to integrate
+- 📱 Works on all Flutter platforms
 
 ---
 
@@ -24,4 +28,4 @@ Add the dependency in your **`pubspec.yaml`** file:
 
 ```yaml
 dependencies:
-  infinite_scroll_plus: ^0.0.7
+  infinite_scroll_plus: ^0.1.0
