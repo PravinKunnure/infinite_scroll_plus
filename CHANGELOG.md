@@ -89,7 +89,7 @@
 
 ---
 
-## **0.1.0 — Major Upgrade 🎉**
+## **1.0.0 — Major Upgrade 🎉**
 ### Added
 - **Search support**:  
   Allows filtering of already loaded data using `searchQuery` and `onSearch` callbacks.
