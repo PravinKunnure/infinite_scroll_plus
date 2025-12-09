@@ -106,3 +106,8 @@
 - Refactored `itemBuilder` to use:
   ```dart
   (BuildContext context, T item, int index)
+
+
+## 1.0.1
+### Improved
+- Minor incremental improvements to lazy loading performance.

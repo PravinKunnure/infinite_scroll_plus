@@ -29,3 +29,7 @@ Add the dependency in your **`pubspec.yaml`** file:
 ```yaml
 dependencies:
   infinite_scroll_plus: ^0.1.0
+
+
+
+##Please share your feedback(or raise a issue or bug if you find any), So that we can work on it and make it more fisible and smooth. Thank You..!!!
