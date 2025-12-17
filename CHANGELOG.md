@@ -107,7 +107,6 @@
   ```dart
   (BuildContext context, T item, int index)
 
-
 ## 1.0.1
 ### Improved
 - Minor incremental improvements to lazy loading performance.
@@ -116,5 +115,6 @@
 ### Improved
 - Minor improvements## 1.0.2
 
+## 1.0.3
 ### Improved
 - Minor improvements/Dart Format Changes.
