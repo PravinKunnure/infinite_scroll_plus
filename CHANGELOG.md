@@ -114,4 +114,7 @@
 
 ## 1.0.2
 ### Improved
-- Minor improvements.
+- Minor improvements## 1.0.2
+
+### Improved
+- Minor improvements/Dart Format Changes.

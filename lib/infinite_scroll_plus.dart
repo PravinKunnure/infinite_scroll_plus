@@ -7,11 +7,8 @@
 import 'package:flutter/material.dart';
 
 /// Function signature for building widgets using a model item.
-typedef ItemWidgetBuilder<T> = Widget Function(
-    BuildContext context,
-    T item,
-    int index,
-    );
+typedef ItemWidgetBuilder<T> =
+    Widget Function(BuildContext context, T item, int index);
 
 /// ===========================================================================
 /// InfiniteScrollList

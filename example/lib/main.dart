@@ -105,68 +105,68 @@ class _MyPageState extends State<MyPage> {
               padding: const EdgeInsets.all(8.0),
               child: _isGridView
                   ? InfiniteScrollGrid<String>(
-                items: _items,
-                onLoadMore: _loadMore,
-                hasMore: _hasMore,
+                      items: _items,
+                      onLoadMore: _loadMore,
+                      hasMore: _hasMore,
 
-                // SEARCH
-                searchQuery: _searchQuery,
-                onSearch: (items, q) => items
-                    .where((e) =>
-                    e.toLowerCase().contains(q.toLowerCase()))
-                    .toList(),
+                      // SEARCH
+                      searchQuery: _searchQuery,
+                      onSearch: (items, q) => items
+                          .where(
+                              (e) => e.toLowerCase().contains(q.toLowerCase()))
+                          .toList(),
 
-                // SORT
-                applySort: _sortEnabled,
-                onSort: (items) {
-                  items.sort((a, b) => a.compareTo(b));
-                  return items;
-                },
+                      // SORT
+                      applySort: _sortEnabled,
+                      onSort: (items) {
+                        items.sort((a, b) => a.compareTo(b));
+                        return items;
+                      },
 
-                gridDelegate:
-                const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
 
-                itemBuilder: (context, item, index) => Card(
-                  color: Colors.blue.shade100,
-                  child: Center(
-                    child: Text(
-                      item,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                      itemBuilder: (context, item, index) => Card(
+                        color: Colors.blue.shade100,
+                        child: Center(
+                          child: Text(
+                            item,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : InfiniteScrollList<String>(
+                      items: _items,
+                      onLoadMore: _loadMore,
+                      hasMore: _hasMore,
+
+                      // SEARCH
+                      searchQuery: _searchQuery,
+                      onSearch: (items, q) => items
+                          .where(
+                              (e) => e.toLowerCase().contains(q.toLowerCase()))
+                          .toList(),
+
+                      // SORT
+                      applySort: _sortEnabled,
+                      onSort: (items) {
+                        items.sort((a, b) => a.compareTo(b));
+                        return items;
+                      },
+
+                      itemBuilder: (context, item, index) => ListTile(
+                        leading: CircleAvatar(child: Text('${index + 1}')),
+                        title: Text(item),
                       ),
                     ),
-                  ),
-                ),
-              )
-                  : InfiniteScrollList<String>(
-                items: _items,
-                onLoadMore: _loadMore,
-                hasMore: _hasMore,
-
-                // SEARCH
-                searchQuery: _searchQuery,
-                onSearch: (items, q) => items
-                    .where((e) =>
-                    e.toLowerCase().contains(q.toLowerCase()))
-                    .toList(),
-
-                // SORT
-                applySort: _sortEnabled,
-                onSort: (items) {
-                  items.sort((a, b) => a.compareTo(b));
-                  return items;
-                },
-
-                itemBuilder: (context, item, index) => ListTile(
-                  leading: CircleAvatar(child: Text('${index + 1}')),
-                  title: Text(item),
-                ),
-              ),
             ),
           ),
         ],
