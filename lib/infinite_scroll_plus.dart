@@ -14,7 +14,7 @@ typedef ItemWidgetBuilder<T> = Widget Function(
     );
 
 /// ===========================================================================
-/// InfiniteScrollList<T>
+/// InfiniteScrollList
 /// A paginated ListView with optional local sorting and searching.
 /// ===========================================================================
 class InfiniteScrollList<T> extends StatefulWidget {
@@ -162,7 +162,7 @@ class _InfiniteScrollListState<T> extends State<InfiniteScrollList<T>> {
 }
 
 /// ===========================================================================
-/// InfiniteScrollGrid<T>
+/// InfiniteScrollGrid
 /// A paginated GridView with optional local sorting and searching.
 /// ===========================================================================
 class InfiniteScrollGrid<T> extends StatefulWidget {

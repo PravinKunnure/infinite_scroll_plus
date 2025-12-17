@@ -111,3 +111,7 @@
 ## 1.0.1
 ### Improved
 - Minor incremental improvements to lazy loading performance.
+
+## 1.0.2
+### Improved
+- Minor improvements.

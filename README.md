@@ -28,7 +28,7 @@ Add the dependency in your **`pubspec.yaml`** file:
 
 ```yaml
 dependencies:
-  infinite_scroll_plus: ^0.1.0
+  infinite_scroll_plus: ^1.0.2
 
 
 
