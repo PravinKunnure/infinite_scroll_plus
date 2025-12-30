@@ -1,6 +1,6 @@
 name: infinite_scroll_plus
 description: "A lightweight Flutter package for effortless lazy loading,infinite scrolling,search & sort."
-version: 1.0.3
+version: 1.0.4
 homepage: https://github.com/PravinKunnure/infinite_scroll
 
 environment:

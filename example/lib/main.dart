@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_plus/infinite_scroll_plus.dart';
 
-// Example App
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -9,9 +8,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MyPage(),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.indigo,
+      ),
+      home: const MyPage(),
     );
   }
 }
@@ -24,16 +27,30 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
-  final List<String> _items = List.generate(20, (i) => 'Item $i');
+  final List<String> _items = [];
 
   bool _hasMore = true;
   bool _isGridView = false;
 
-  // Search / Sort state
   String _searchQuery = "";
   bool _sortEnabled = false;
 
-  // ---- Load more items (pagination) ----
+  bool _initialLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitial();
+  }
+
+  Future<void> _loadInitial() async {
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      _items.addAll(List.generate(20, (i) => 'Item $i'));
+      _initialLoading = false;
+    });
+  }
+
   Future<void> _loadMore() async {
     await Future.delayed(const Duration(seconds: 2));
 
@@ -49,125 +66,209 @@ class _MyPageState extends State<MyPage> {
     });
   }
 
-  void _toggleView() {
-    setState(() => _isGridView = !_isGridView);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Infinite Scroll Example'),
+        title: const Text(
+          'Infinite Scroll Plus',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        centerTitle: true,
         actions: [
-          // Toggle List / Grid
           IconButton(
-            icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
-            onPressed: _toggleView,
-            tooltip: _isGridView ? 'Switch to List' : 'Switch to Grid',
-          ),
-
-          // Toggle Sort
-          IconButton(
+            tooltip: _isGridView ? 'List view' : 'Grid view',
             icon: Icon(
-              Icons.sort,
-              color: _sortEnabled ? Colors.yellow : Colors.white,
+              _isGridView ? Icons.view_list : Icons.grid_view_rounded,
             ),
-            onPressed: () {
-              setState(() => _sortEnabled = !_sortEnabled);
-            },
-            tooltip: "Sort A→Z",
+            onPressed: () => setState(() => _isGridView = !_isGridView),
+          ),
+          IconButton(
+            tooltip: 'Sort A → Z',
+            icon: Icon(
+              Icons.sort_by_alpha_rounded,
+              color: _sortEnabled ? cs.primary : cs.onSurfaceVariant,
+            ),
+            onPressed: () => setState(() => _sortEnabled = !_sortEnabled),
           ),
         ],
       ),
-
-      // Search Bar
       body: Column(
         children: [
+          // 🔍 Search Bar
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: TextField(
+              onChanged: (v) => setState(() => _searchQuery = v),
               decoration: InputDecoration(
-                labelText: "Search items...",
+                hintText: 'Search items...',
                 prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: cs.surfaceVariant.withOpacity(0.4),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
                 ),
               ),
-              onChanged: (value) {
-                setState(() => _searchQuery = value);
-              },
             ),
           ),
 
-          // Expanded area for Infinite Scroll Widget
+          // 📦 Content
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: _isGridView
-                  ? InfiniteScrollGrid<String>(
-                      items: _items,
-                      onLoadMore: _loadMore,
-                      hasMore: _hasMore,
-
-                      // SEARCH
-                      searchQuery: _searchQuery,
-                      onSearch: (items, q) => items
-                          .where(
-                              (e) => e.toLowerCase().contains(q.toLowerCase()))
-                          .toList(),
-
-                      // SORT
-                      applySort: _sortEnabled,
-                      onSort: (items) {
-                        items.sort((a, b) => a.compareTo(b));
-                        return items;
-                      },
-
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-
-                      itemBuilder: (context, item, index) => Card(
-                        color: Colors.blue.shade100,
-                        child: Center(
-                          child: Text(
-                            item,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: Padding(
+                key: ValueKey(_isGridView),
+                padding: const EdgeInsets.all(12),
+                child: _isGridView
+                    ? InfiniteScrollGrid<String>(
+                        items: _items,
+                        onLoadMore: _loadMore,
+                        hasMore: _hasMore,
+                        enableSkeletonLoader: _initialLoading,
+                        searchQuery: _searchQuery,
+                        onSearch: (items, q) => items
+                            .where((e) =>
+                                e.toLowerCase().contains(q.toLowerCase()))
+                            .toList(),
+                        applySort: _sortEnabled,
+                        onSort: (items) {
+                          items.sort((a, b) => a.compareTo(b));
+                          return items;
+                        },
+                        emptyWidget: const _EmptyState(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 1.1,
+                        ),
+                        itemBuilder: (context, item, index) => _GridCard(
+                          title: item,
+                          index: index,
+                        ),
+                      )
+                    : InfiniteScrollList<String>(
+                        items: _items,
+                        onLoadMore: _loadMore,
+                        hasMore: _hasMore,
+                        enableSkeletonLoader: _initialLoading,
+                        searchQuery: _searchQuery,
+                        onSearch: (items, q) => items
+                            .where((e) =>
+                                e.toLowerCase().contains(q.toLowerCase()))
+                            .toList(),
+                        applySort: _sortEnabled,
+                        onSort: (items) {
+                          items.sort((a, b) => a.compareTo(b));
+                          return items;
+                        },
+                        emptyWidget: const _EmptyState(),
+                        itemBuilder: (context, item, index) => Card(
+                          elevation: 0.5,
+                          margin: const EdgeInsets.symmetric(vertical: 6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: cs.primaryContainer,
+                              child: Text(
+                                '${index + 1}',
+                                style: TextStyle(color: cs.onPrimaryContainer),
+                              ),
+                            ),
+                            title: Text(
+                              item,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            subtitle: const Text('Tap to view details'),
+                            trailing: const Icon(
+                              Icons.chevron_right_rounded,
                             ),
                           ),
                         ),
                       ),
-                    )
-                  : InfiniteScrollList<String>(
-                      items: _items,
-                      onLoadMore: _loadMore,
-                      hasMore: _hasMore,
-
-                      // SEARCH
-                      searchQuery: _searchQuery,
-                      onSearch: (items, q) => items
-                          .where(
-                              (e) => e.toLowerCase().contains(q.toLowerCase()))
-                          .toList(),
-
-                      // SORT
-                      applySort: _sortEnabled,
-                      onSort: (items) {
-                        items.sort((a, b) => a.compareTo(b));
-                        return items;
-                      },
-
-                      itemBuilder: (context, item, index) => ListTile(
-                        leading: CircleAvatar(child: Text('${index + 1}')),
-                        title: Text(item),
-                      ),
-                    ),
+              ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 🧩 Grid Card Widget
+class _GridCard extends StatelessWidget {
+  final String title;
+  final int index;
+
+  const _GridCard({required this.title, required this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Card(
+      elevation: 0.5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      color: cs.primaryContainer.withOpacity(0.9),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.inventory_2_rounded,
+              size: 36,
+              color: cs.onPrimaryContainer,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: cs.onPrimaryContainer,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '#${index + 1}',
+              style: TextStyle(
+                fontSize: 12,
+                color: cs.onPrimaryContainer.withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 📭 Empty State
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.search_off_rounded, size: 56, color: Colors.grey),
+          SizedBox(height: 12),
+          Text(
+            'No items found',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ],
       ),

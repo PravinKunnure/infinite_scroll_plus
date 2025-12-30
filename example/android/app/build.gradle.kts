@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.infinite_scroll_plus_example"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+//    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
