@@ -28,13 +28,10 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> {
   final List<String> _items = [];
-
   bool _hasMore = true;
   bool _isGridView = false;
-
   String _searchQuery = "";
   bool _sortEnabled = false;
-
   bool _initialLoading = true;
 
   @override
@@ -51,9 +48,11 @@ class _MyPageState extends State<MyPage> {
     });
   }
 
-  Future<void> _loadMore() async {
+  // ✅ Updated to use LoadMoreRequest
+  Future<void> _loadMore(LoadMoreRequest request) async {
     await Future.delayed(const Duration(seconds: 2));
 
+    // Simulate max limit
     if (_items.length >= 100) {
       setState(() => _hasMore = false);
       return;
@@ -61,7 +60,10 @@ class _MyPageState extends State<MyPage> {
 
     setState(() {
       _items.addAll(
-        List.generate(10, (i) => 'Item ${_items.length + i}'),
+        List.generate(
+          10,
+          (i) => 'Item ${request.currentItemCount + i}',
+        ),
       );
     });
   }
@@ -80,9 +82,7 @@ class _MyPageState extends State<MyPage> {
         actions: [
           IconButton(
             tooltip: _isGridView ? 'List view' : 'Grid view',
-            icon: Icon(
-              _isGridView ? Icons.view_list : Icons.grid_view_rounded,
-            ),
+            icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view_rounded),
             onPressed: () => setState(() => _isGridView = !_isGridView),
           ),
           IconButton(
@@ -106,7 +106,7 @@ class _MyPageState extends State<MyPage> {
                 hintText: 'Search items...',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
-                fillColor: cs.surfaceVariant.withOpacity(0.4),
+                fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.4),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
@@ -219,7 +219,7 @@ class _GridCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      color: cs.primaryContainer.withOpacity(0.9),
+      color: cs.primaryContainer.withValues(alpha: 0.9),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -244,7 +244,7 @@ class _GridCard extends StatelessWidget {
               '#${index + 1}',
               style: TextStyle(
                 fontSize: 12,
-                color: cs.onPrimaryContainer.withOpacity(0.7),
+                color: cs.onPrimaryContainer.withValues(alpha: 0.7),
               ),
             ),
           ],

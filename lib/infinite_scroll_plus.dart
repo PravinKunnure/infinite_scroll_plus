@@ -1,12 +1,36 @@
+library;
+
 import 'package:flutter/material.dart';
 
 typedef ItemWidgetBuilder<T> =
     Widget Function(BuildContext context, T item, int index);
 
+typedef ErrorWidgetBuilder =
+    Widget Function(BuildContext context, Object error, VoidCallback retry);
+
+/// ===========================================================================
+/// LOAD MORE REQUEST (API CONTROL)
+/// ===========================================================================
+class LoadMoreRequest {
+  final int page;
+  final int currentItemCount;
+  final Object? cursor;
+
+  const LoadMoreRequest({
+    required this.page,
+    required this.currentItemCount,
+    this.cursor,
+  });
+}
+
+/// ===========================================================================
+/// INTERNAL STATUS
+/// ===========================================================================
+enum InfiniteScrollStatus { idle, loading, error }
+
 /// ===========================================================================
 /// DEFAULT SKELETONS (Internal)
 /// ===========================================================================
-
 class _DefaultListSkeleton extends StatelessWidget {
   const _DefaultListSkeleton();
 
@@ -58,12 +82,15 @@ class _DefaultGridSkeleton extends StatelessWidget {
 class InfiniteScrollList<T> extends StatefulWidget {
   final List<T> items;
   final ItemWidgetBuilder<T> itemBuilder;
-  final Future<void> Function() onLoadMore;
+
+  final Future<void> Function(LoadMoreRequest request) onLoadMore;
   final bool hasMore;
 
   final Widget? loadingWidget;
   final Widget? emptyWidget;
   final Widget? skeletonWidget;
+  final ErrorWidgetBuilder? errorBuilder;
+
   final bool enableSkeletonLoader;
 
   final ScrollController? controller;
@@ -88,6 +115,7 @@ class InfiniteScrollList<T> extends StatefulWidget {
     this.loadingWidget,
     this.emptyWidget,
     this.skeletonWidget,
+    this.errorBuilder,
     this.enableSkeletonLoader = false,
     this.controller,
     this.physics,
@@ -104,7 +132,12 @@ class InfiniteScrollList<T> extends StatefulWidget {
 
 class _InfiniteScrollListState<T> extends State<InfiniteScrollList<T>> {
   late final ScrollController _controller;
-  bool _isLoading = false;
+
+  InfiniteScrollStatus _status = InfiniteScrollStatus.idle;
+  Object? _error;
+
+  int _page = 1;
+  Object? _cursor;
   double _lastMaxExtent = 0;
 
   List<T> get _processedItems {
@@ -150,15 +183,33 @@ class _InfiniteScrollListState<T> extends State<InfiniteScrollList<T>> {
   }
 
   Future<void> _loadMore() async {
-    if (_isLoading || !widget.hasMore) return;
+    if (_status == InfiniteScrollStatus.loading || !widget.hasMore) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _status = InfiniteScrollStatus.loading;
+      _error = null;
+    });
 
     try {
-      await widget.onLoadMore();
-    } finally {
+      await widget.onLoadMore(
+        LoadMoreRequest(
+          page: _page,
+          currentItemCount: widget.items.length,
+          cursor: _cursor,
+        ),
+      );
+
+      _page++;
+
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _status = InfiniteScrollStatus.idle);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _status = InfiniteScrollStatus.error;
+          _error = e;
+        });
       }
     }
   }
@@ -174,26 +225,46 @@ class _InfiniteScrollListState<T> extends State<InfiniteScrollList<T>> {
   @override
   Widget build(BuildContext context) {
     final items = _processedItems;
-    final showLoader = _isLoading && widget.hasMore;
+
+    final showLoader =
+        _status == InfiniteScrollStatus.loading && widget.hasMore;
+    final showError = _status == InfiniteScrollStatus.error;
 
     if (widget.enableSkeletonLoader &&
         widget.items.isEmpty &&
-        _isLoading &&
+        _status == InfiniteScrollStatus.loading &&
         widget.hasMore) {
       return widget.skeletonWidget ?? const _DefaultListSkeleton();
     }
 
-    if (items.isEmpty && !_isLoading) {
+    if (items.isEmpty && _status == InfiniteScrollStatus.idle) {
       return widget.emptyWidget ?? const Center(child: Text('No items found'));
     }
 
     return ListView.builder(
       controller: _controller,
       physics: widget.physics,
-      itemCount: items.length + (showLoader ? 1 : 0),
+      itemCount: items.length + (showLoader || showError ? 1 : 0),
       itemBuilder: (context, index) {
         if (index < items.length) {
           return widget.itemBuilder(context, items[index], index);
+        }
+
+        if (showError) {
+          return widget.errorBuilder?.call(context, _error!, _loadMore) ??
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const Text('Failed to load more items'),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: _loadMore,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
         }
 
         return widget.loadingWidget ??
@@ -207,137 +278,54 @@ class _InfiniteScrollListState<T> extends State<InfiniteScrollList<T>> {
 }
 
 /// ===========================================================================
-/// InfiniteScrollGrid
+/// InfiniteScrollGrid (same behavior, grid layout)
 /// ===========================================================================
-class InfiniteScrollGrid<T> extends StatefulWidget {
-  final List<T> items;
-  final ItemWidgetBuilder<T> itemBuilder;
+class InfiniteScrollGrid<T> extends InfiniteScrollList<T> {
   final SliverGridDelegate gridDelegate;
-  final Future<void> Function() onLoadMore;
-  final bool hasMore;
-
-  final Widget? loadingWidget;
-  final Widget? emptyWidget;
-  final Widget? skeletonWidget;
-  final bool enableSkeletonLoader;
-
-  final ScrollController? controller;
-  final ScrollPhysics? physics;
-
-  final String? searchQuery;
-  final List<T> Function(List<T> items, String query)? onSearch;
-
-  final bool applySort;
-  final List<T> Function(List<T> items)? onSort;
-
-  final double loadMoreOffset;
 
   const InfiniteScrollGrid({
     super.key,
-    required this.items,
-    required this.itemBuilder,
+    required super.items,
+    required super.itemBuilder,
+    required super.onLoadMore,
     required this.gridDelegate,
-    required this.onLoadMore,
-    this.hasMore = true,
-    this.loadingWidget,
-    this.emptyWidget,
-    this.skeletonWidget,
-    this.enableSkeletonLoader = false,
-    this.controller,
-    this.physics,
-    this.searchQuery,
-    this.onSearch,
-    this.applySort = false,
-    this.onSort,
-    this.loadMoreOffset = 200,
+    super.hasMore,
+    super.loadingWidget,
+    super.emptyWidget,
+    super.skeletonWidget,
+    super.errorBuilder,
+    super.enableSkeletonLoader,
+    super.controller,
+    super.physics,
+    super.searchQuery,
+    super.onSearch,
+    super.applySort,
+    super.onSort,
+    super.loadMoreOffset,
   });
 
   @override
-  State<InfiniteScrollGrid<T>> createState() => _InfiniteScrollGridState<T>();
+  State<InfiniteScrollList<T>> createState() => _InfiniteScrollGridState<T>();
 }
 
-class _InfiniteScrollGridState<T> extends State<InfiniteScrollGrid<T>> {
-  late final ScrollController _controller;
-  bool _isLoading = false;
-  double _lastMaxExtent = 0;
-
-  List<T> get _processedItems {
-    var list = List<T>.from(widget.items);
-
-    if (widget.searchQuery?.isNotEmpty == true && widget.onSearch != null) {
-      list = widget.onSearch!(list, widget.searchQuery!);
-    }
-
-    if (widget.applySort && widget.onSort != null) {
-      list = widget.onSort!(list);
-    }
-
-    return list;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = widget.controller ?? ScrollController();
-    _controller.addListener(_onScroll);
-  }
-
-  @override
-  void didUpdateWidget(covariant InfiniteScrollGrid<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.items.length != widget.items.length) {
-      _lastMaxExtent = 0;
-    }
-  }
-
-  void _onScroll() {
-    if (!_controller.hasClients) return;
-
-    final pos = _controller.position;
-
-    if (pos.maxScrollExtent == _lastMaxExtent) return;
-
-    if (pos.pixels >= pos.maxScrollExtent - widget.loadMoreOffset) {
-      _lastMaxExtent = pos.maxScrollExtent;
-      _loadMore();
-    }
-  }
-
-  Future<void> _loadMore() async {
-    if (_isLoading || !widget.hasMore) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      await widget.onLoadMore();
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    if (widget.controller == null) {
-      _controller.dispose();
-    }
-    super.dispose();
-  }
-
+class _InfiniteScrollGridState<T> extends _InfiniteScrollListState<T> {
   @override
   Widget build(BuildContext context) {
+    final widget = this.widget as InfiniteScrollGrid<T>;
     final items = _processedItems;
-    final showLoader = _isLoading && widget.hasMore;
+
+    final showLoader =
+        _status == InfiniteScrollStatus.loading && widget.hasMore;
+    final showError = _status == InfiniteScrollStatus.error;
 
     if (widget.enableSkeletonLoader &&
         widget.items.isEmpty &&
-        _isLoading &&
+        _status == InfiniteScrollStatus.loading &&
         widget.hasMore) {
       return widget.skeletonWidget ?? const _DefaultGridSkeleton();
     }
 
-    if (items.isEmpty && !_isLoading) {
+    if (items.isEmpty && _status == InfiniteScrollStatus.idle) {
       return widget.emptyWidget ?? const Center(child: Text('No items found'));
     }
 
@@ -345,21 +333,386 @@ class _InfiniteScrollGridState<T> extends State<InfiniteScrollGrid<T>> {
       controller: _controller,
       physics: widget.physics,
       gridDelegate: widget.gridDelegate,
-      itemCount: items.length + (showLoader ? 1 : 0),
+      itemCount: items.length + (showLoader || showError ? 1 : 0),
       itemBuilder: (context, index) {
         if (index < items.length) {
           return widget.itemBuilder(context, items[index], index);
         }
 
+        if (showError) {
+          return widget.errorBuilder?.call(context, _error!, _loadMore) ??
+              const Center(child: Text('Error loading more items'));
+        }
+
         return widget.loadingWidget ??
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
-            );
+            const Center(child: CircularProgressIndicator());
       },
     );
   }
 }
+
+// import 'package:flutter/material.dart';
+//
+// typedef ItemWidgetBuilder<T> =
+//     Widget Function(BuildContext context, T item, int index);
+//
+// /// ===========================================================================
+// /// DEFAULT SKELETONS (Internal)
+// /// ===========================================================================
+//
+// class _DefaultListSkeleton extends StatelessWidget {
+//   const _DefaultListSkeleton();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return ListView.builder(
+//       physics: const NeverScrollableScrollPhysics(),
+//       itemCount: 6,
+//       itemBuilder: (_, __) => Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+//         child: Container(
+//           height: 64,
+//           decoration: BoxDecoration(
+//             color: Colors.grey.shade300,
+//             borderRadius: BorderRadius.circular(12),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+//
+// class _DefaultGridSkeleton extends StatelessWidget {
+//   const _DefaultGridSkeleton();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return GridView.builder(
+//       physics: const NeverScrollableScrollPhysics(),
+//       itemCount: 6,
+//       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+//         crossAxisCount: 2,
+//         crossAxisSpacing: 12,
+//         mainAxisSpacing: 12,
+//       ),
+//       itemBuilder: (_, __) => Container(
+//         decoration: BoxDecoration(
+//           color: Colors.grey.shade300,
+//           borderRadius: BorderRadius.circular(16),
+//         ),
+//       ),
+//     );
+//   }
+// }
+//
+// /// ===========================================================================
+// /// InfiniteScrollList
+// /// ===========================================================================
+// class InfiniteScrollList<T> extends StatefulWidget {
+//   final List<T> items;
+//   final ItemWidgetBuilder<T> itemBuilder;
+//   final Future<void> Function() onLoadMore;
+//   final bool hasMore;
+//
+//   final Widget? loadingWidget;
+//   final Widget? emptyWidget;
+//   final Widget? skeletonWidget;
+//   final bool enableSkeletonLoader;
+//
+//   final ScrollController? controller;
+//   final ScrollPhysics? physics;
+//
+//   // Search
+//   final String? searchQuery;
+//   final List<T> Function(List<T> items, String query)? onSearch;
+//
+//   // Sort
+//   final bool applySort;
+//   final List<T> Function(List<T> items)? onSort;
+//
+//   final double loadMoreOffset;
+//
+//   const InfiniteScrollList({
+//     super.key,
+//     required this.items,
+//     required this.itemBuilder,
+//     required this.onLoadMore,
+//     this.hasMore = true,
+//     this.loadingWidget,
+//     this.emptyWidget,
+//     this.skeletonWidget,
+//     this.enableSkeletonLoader = false,
+//     this.controller,
+//     this.physics,
+//     this.searchQuery,
+//     this.onSearch,
+//     this.applySort = false,
+//     this.onSort,
+//     this.loadMoreOffset = 200,
+//   });
+//
+//   @override
+//   State<InfiniteScrollList<T>> createState() => _InfiniteScrollListState<T>();
+// }
+//
+// class _InfiniteScrollListState<T> extends State<InfiniteScrollList<T>> {
+//   late final ScrollController _controller;
+//   bool _isLoading = false;
+//   double _lastMaxExtent = 0;
+//
+//   List<T> get _processedItems {
+//     var list = List<T>.from(widget.items);
+//
+//     if (widget.searchQuery?.isNotEmpty == true && widget.onSearch != null) {
+//       list = widget.onSearch!(list, widget.searchQuery!);
+//     }
+//
+//     if (widget.applySort && widget.onSort != null) {
+//       list = widget.onSort!(list);
+//     }
+//
+//     return list;
+//   }
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = widget.controller ?? ScrollController();
+//     _controller.addListener(_onScroll);
+//   }
+//
+//   @override
+//   void didUpdateWidget(covariant InfiniteScrollList<T> oldWidget) {
+//     super.didUpdateWidget(oldWidget);
+//     if (oldWidget.items.length != widget.items.length) {
+//       _lastMaxExtent = 0;
+//     }
+//   }
+//
+//   void _onScroll() {
+//     if (!_controller.hasClients) return;
+//
+//     final pos = _controller.position;
+//
+//     if (pos.maxScrollExtent == _lastMaxExtent) return;
+//
+//     if (pos.pixels >= pos.maxScrollExtent - widget.loadMoreOffset) {
+//       _lastMaxExtent = pos.maxScrollExtent;
+//       _loadMore();
+//     }
+//   }
+//
+//   Future<void> _loadMore() async {
+//     if (_isLoading || !widget.hasMore) return;
+//
+//     setState(() => _isLoading = true);
+//
+//     try {
+//       await widget.onLoadMore();
+//     } finally {
+//       if (mounted) {
+//         setState(() => _isLoading = false);
+//       }
+//     }
+//   }
+//
+//   @override
+//   void dispose() {
+//     if (widget.controller == null) {
+//       _controller.dispose();
+//     }
+//     super.dispose();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final items = _processedItems;
+//     final showLoader = _isLoading && widget.hasMore;
+//
+//     if (widget.enableSkeletonLoader &&
+//         widget.items.isEmpty &&
+//         _isLoading &&
+//         widget.hasMore) {
+//       return widget.skeletonWidget ?? const _DefaultListSkeleton();
+//     }
+//
+//     if (items.isEmpty && !_isLoading) {
+//       return widget.emptyWidget ?? const Center(child: Text('No items found'));
+//     }
+//
+//     return ListView.builder(
+//       controller: _controller,
+//       physics: widget.physics,
+//       itemCount: items.length + (showLoader ? 1 : 0),
+//       itemBuilder: (context, index) {
+//         if (index < items.length) {
+//           return widget.itemBuilder(context, items[index], index);
+//         }
+//
+//         return widget.loadingWidget ??
+//             const Padding(
+//               padding: EdgeInsets.all(16),
+//               child: Center(child: CircularProgressIndicator()),
+//             );
+//       },
+//     );
+//   }
+// }
+//
+// /// ===========================================================================
+// /// InfiniteScrollGrid
+// /// ===========================================================================
+// class InfiniteScrollGrid<T> extends StatefulWidget {
+//   final List<T> items;
+//   final ItemWidgetBuilder<T> itemBuilder;
+//   final SliverGridDelegate gridDelegate;
+//   final Future<void> Function() onLoadMore;
+//   final bool hasMore;
+//
+//   final Widget? loadingWidget;
+//   final Widget? emptyWidget;
+//   final Widget? skeletonWidget;
+//   final bool enableSkeletonLoader;
+//
+//   final ScrollController? controller;
+//   final ScrollPhysics? physics;
+//
+//   final String? searchQuery;
+//   final List<T> Function(List<T> items, String query)? onSearch;
+//
+//   final bool applySort;
+//   final List<T> Function(List<T> items)? onSort;
+//
+//   final double loadMoreOffset;
+//
+//   const InfiniteScrollGrid({
+//     super.key,
+//     required this.items,
+//     required this.itemBuilder,
+//     required this.gridDelegate,
+//     required this.onLoadMore,
+//     this.hasMore = true,
+//     this.loadingWidget,
+//     this.emptyWidget,
+//     this.skeletonWidget,
+//     this.enableSkeletonLoader = false,
+//     this.controller,
+//     this.physics,
+//     this.searchQuery,
+//     this.onSearch,
+//     this.applySort = false,
+//     this.onSort,
+//     this.loadMoreOffset = 200,
+//   });
+//
+//   @override
+//   State<InfiniteScrollGrid<T>> createState() => _InfiniteScrollGridState<T>();
+// }
+//
+// class _InfiniteScrollGridState<T> extends State<InfiniteScrollGrid<T>> {
+//   late final ScrollController _controller;
+//   bool _isLoading = false;
+//   double _lastMaxExtent = 0;
+//
+//   List<T> get _processedItems {
+//     var list = List<T>.from(widget.items);
+//
+//     if (widget.searchQuery?.isNotEmpty == true && widget.onSearch != null) {
+//       list = widget.onSearch!(list, widget.searchQuery!);
+//     }
+//
+//     if (widget.applySort && widget.onSort != null) {
+//       list = widget.onSort!(list);
+//     }
+//
+//     return list;
+//   }
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = widget.controller ?? ScrollController();
+//     _controller.addListener(_onScroll);
+//   }
+//
+//   @override
+//   void didUpdateWidget(covariant InfiniteScrollGrid<T> oldWidget) {
+//     super.didUpdateWidget(oldWidget);
+//     if (oldWidget.items.length != widget.items.length) {
+//       _lastMaxExtent = 0;
+//     }
+//   }
+//
+//   void _onScroll() {
+//     if (!_controller.hasClients) return;
+//
+//     final pos = _controller.position;
+//
+//     if (pos.maxScrollExtent == _lastMaxExtent) return;
+//
+//     if (pos.pixels >= pos.maxScrollExtent - widget.loadMoreOffset) {
+//       _lastMaxExtent = pos.maxScrollExtent;
+//       _loadMore();
+//     }
+//   }
+//
+//   Future<void> _loadMore() async {
+//     if (_isLoading || !widget.hasMore) return;
+//
+//     setState(() => _isLoading = true);
+//
+//     try {
+//       await widget.onLoadMore();
+//     } finally {
+//       if (mounted) {
+//         setState(() => _isLoading = false);
+//       }
+//     }
+//   }
+//
+//   @override
+//   void dispose() {
+//     if (widget.controller == null) {
+//       _controller.dispose();
+//     }
+//     super.dispose();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final items = _processedItems;
+//     final showLoader = _isLoading && widget.hasMore;
+//
+//     if (widget.enableSkeletonLoader &&
+//         widget.items.isEmpty &&
+//         _isLoading &&
+//         widget.hasMore) {
+//       return widget.skeletonWidget ?? const _DefaultGridSkeleton();
+//     }
+//
+//     if (items.isEmpty && !_isLoading) {
+//       return widget.emptyWidget ?? const Center(child: Text('No items found'));
+//     }
+//
+//     return GridView.builder(
+//       controller: _controller,
+//       physics: widget.physics,
+//       gridDelegate: widget.gridDelegate,
+//       itemCount: items.length + (showLoader ? 1 : 0),
+//       itemBuilder: (context, index) {
+//         if (index < items.length) {
+//           return widget.itemBuilder(context, items[index], index);
+//         }
+//
+//         return widget.loadingWidget ??
+//             const Padding(
+//               padding: EdgeInsets.all(16),
+//               child: Center(child: CircularProgressIndicator()),
+//             );
+//       },
+//     );
+//   }
+// }
 
 ///OldVersion
 // // ================================================================
