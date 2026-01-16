@@ -1,7 +1,6 @@
 # Infinite Scroll Plus
 
-[![pub package](https://img.shields.io/pub/v/infinite_scroll_plus.svg)](https://pub.dev/packages/infinite_scroll_plus)  
-Version: **2.0.0**
+[![Pub Version](https://img.shields.io/pub/v/infinite_scroll_plus)](https://pub.dev/packages/infinite_scroll_plus) | [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
 
 A simple and customizable **infinite scroll widget** for Flutter, supporting both **ListView** and **GridView** with:
 
@@ -12,9 +11,14 @@ A simple and customizable **infinite scroll widget** for Flutter, supporting bot
 - Smooth scroll + loadMore trigger
 - Optional pull-to-refresh (can be added easily)
 
+# Demo :
+
+![DropdownProPlus Demo](https://raw.githubusercontent.com/PravinKunnure/infinite_scroll_plus/main/example/assets/demo.gif)
+
+
 ---
 
-## 📦 Features (v2.0.0)
+## 📦 Major Updated Features (from v2.0.0)
 
 - **InfiniteScrollList & InfiniteScrollGrid** widgets
 - **Skeleton loader** for initial loading

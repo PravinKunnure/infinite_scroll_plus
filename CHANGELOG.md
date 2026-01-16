@@ -5,6 +5,8 @@ This project follows early-stage semantic versioning during development.
 
 
 ---
+## 2.0.1
+- Required Document Changes done
 
 ## 2.0.0 — Major Upgrade 🎉
 ### Added
