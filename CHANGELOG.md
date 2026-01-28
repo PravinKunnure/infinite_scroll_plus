@@ -5,7 +5,7 @@ This project follows early-stage semantic versioning during development.
 
 
 ---
-## 2.0.3
+## 2.0.2
 - Required Document Changes done
 - Minor bug fixes
 
