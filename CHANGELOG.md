@@ -5,6 +5,31 @@ This project follows early-stage semantic versioning during development.
 
 
 ---
+
+## 2.1.0
+
+- Added automatic initial data loading support
+- Added dedicated loading states:
+  - `initialLoading`
+  - `loadingMore`
+- Added pull-to-refresh support using `RefreshIndicator`
+- Added configurable `initialPage`
+- Added configurable `initialCursor`
+- Added `shrinkWrap` support
+- Added `reverse` support
+- Added `padding` support
+- Improved duplicate pagination request prevention
+- Improved initial skeleton loading behavior
+- Improved empty state handling during first API load
+- Improved pagination trigger reliability
+- Improved grid loading and error rendering
+- Added safe scroll listener cleanup on dispose
+- Improved refresh state reset handling
+- Improved pagination state management
+- Improved overall package stability and scroll performance
+- Preserved backward compatibility with existing API usage
+
+
 ## 2.0.5
 - Required Document Changes done
 - Minor bug fixes
