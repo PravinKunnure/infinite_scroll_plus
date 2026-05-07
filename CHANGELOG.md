@@ -5,9 +5,10 @@ This project follows early-stage semantic versioning during development.
 
 
 ---
+## 2.1.1
+- Make package light weight 
 
 ## 2.1.0
-
 - Added automatic initial data loading support
 - Added dedicated loading states:
   - `initialLoading`
